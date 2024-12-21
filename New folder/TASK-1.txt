@@ -1,0 +1,291 @@
+---------
+HTML Code
+---------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List with Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Background Animation -->
+    <div class="background-animation"></div>
+
+    <div class="container">
+        <div class="todo-header">
+            <h1>To-Do List</h1>
+        </div>
+
+        <div class="add-task">
+            <input type="text" id="new-task" placeholder="Enter a new task">
+            <textarea id="task-description" placeholder="Task description"></textarea>
+            <input type="date" id="task-date">
+            <button id="add-task-btn">Add Task</button>
+        </div>
+
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+----------
+CSS Code:
+-----------
+ /* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Container */
+.container {
+    width: 400px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+/* Header */
+.todo-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #333;
+}
+
+/* Add Task Section */
+.add-task {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="text"], textarea, input[type="date"] {
+    padding: 10px;
+    border-radius: 4px;
+    border: 2px solid #ccc;
+    width: 100%;
+}
+
+textarea {
+    height: 80px;
+    resize: none;
+}
+
+button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Task List */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fafafa;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Task Text */
+span {
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+/* Checkbox for task completion */
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Strikethrough for completed tasks */
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}
+
+/* Task Description */
+.description {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+}
+
+/* Delete Button */
+button.delete {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+button.delete:hover {
+    background-color: #e53935;
+}
+
+/* Hover effect for task */
+li:hover {
+    background-color: #e8e8e8;
+    transform: scale(1.05);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Background animation */
+.background-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle, rgba(255, 0, 150, 0.5), rgba(0, 204, 255, 0.5));
+    animation: backgroundPulse 5s infinite ease-in-out;
+    z-index: -1;
+}
+
+/* Pulsing background animation */
+@keyframes backgroundPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+--------
+JS Code:
+--------
+ // Get DOM elements
+const addTaskBtn = document.getElementById('add-task-btn');
+const newTaskInput = document.getElementById('new-task');
+const taskDescriptionInput = document.getElementById('task-description');
+const taskDateInput = document.getElementById('task-date');
+const todoList = document.getElementById('todo-list');
+
+// Event listener to add a new task
+addTaskBtn.addEventListener('click', addTask);
+
+// Function to add a task
+function addTask() {
+    const taskText = newTaskInput.value.trim();
+    const taskDescription = taskDescriptionInput.value.trim();
+    const taskDate = taskDateInput.value;
+
+    // Ensure there is text for the task and a selected date
+    if (taskText !== '' && taskDate !== '') {
+        // Create a new list item (task)
+        const li = document.createElement('li');
+
+        // Create checkbox for task completion
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.addEventListener('change', toggleCompletion);
+
+        // Create span for task text with date
+        const span = document.createElement('span');
+        span.textContent = ${taskText} (Due: ${formatDate(taskDate)});
+
+        // Create a div for the task description
+        const descriptionDiv = document.createElement('div');
+        descriptionDiv.classList.add('description');
+        descriptionDiv.textContent = taskDescription;
+
+        // Create delete button for task
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('delete');
+        deleteButton.addEventListener('click', deleteTask);
+
+        // Append elements to the list item
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(descriptionDiv);
+        li.appendChild(deleteButton);
+
+        // Append the list item to the todo list
+        todoList.appendChild(li);
+
+        // Clear input fields after adding the task
+        newTaskInput.value = '';
+        taskDescriptionInput.value = '';
+        taskDateInput.value = '';
+    }
+}
+
+// Function to mark task as completed
+function toggleCompletion(event) {
+    const taskItem = event.target.parentElement;
+    const taskText = taskItem.querySelector('span');
+    taskText.classList.toggle('completed');
+}
+
+// Function to delete a task
+function deleteTask(event) {
+    const taskItem = event.target.parentElement;
+    todoList.removeChild(taskItem);
+}
+
+// Function to format the date (MM/DD/YYYY)
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return ${month}/${day}/${year};
+}
